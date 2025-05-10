@@ -28,7 +28,7 @@ class TaskTracker{
 
     public static void main(String[] args) {
         CommandLine cmd = new CommandLine(new TaskTracker());
-        cmd.usage(System.out);
+        cmd.execute(args);
     }
 
 }
@@ -40,6 +40,9 @@ class Add implements Callable<Integer>{
         System.out.println("Adding items");
         String filepath = "src/main/resources/TaskList.json";
         File file = new File(filepath);
+        if (!file.exists()){
+            file.createNewFile();
+        }
         writeFile(file,filepath);
 
 
