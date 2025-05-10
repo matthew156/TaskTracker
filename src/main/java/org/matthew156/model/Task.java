@@ -8,17 +8,26 @@ public class Task {
     private int id;
     private String description;
     private Status status;
-    private Date createdAt;
-    private Date updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
 
-    public Task( String description,  Date createdAt, Date updatedAt) {
+    public Task( String description,  String createdAt, String updatedAt) {
         this.description = description;
         this.status = Status.TODO;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
+    public Task( int id, String description,  String createdAt, String updatedAt) {
+        this.id = id;
+        this.description = description;
+        this.status = Status.TODO;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+    public Task( ) {
+    }
     public int getId() {
         return id;
     }
@@ -35,19 +44,19 @@ public class Task {
         this.description = description;
     }
 
-    public Date getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
