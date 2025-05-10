@@ -37,7 +37,6 @@ class Add implements Callable<Integer>{
     @Parameters(index = "0", description = "description of task" )
     private String description;
     public void addTask() throws IOException {
-        System.out.println("Adding items");
         File file = new File(FILE_PATH);
         if (!file.exists()){
             file.createNewFile();
@@ -62,6 +61,7 @@ class Add implements Callable<Integer>{
         writer.write(jsonObject.toString());
         writer.flush();
         writer.close();
+        System.out.println("Task added successfully (ID: " +task.getId() + ")");
     }
 
     @Override
@@ -114,4 +114,50 @@ class Update implements Callable<Integer>{
         updateTask();
         return 0;
     }
-}
+
+
+    @Command(name = "delete", description = "deletes a task to the list by taking an id")
+    class Delete implements Callable<Integer>{
+
+        @Parameters(index = "0", description = "id of the task being updated")
+        private String id;
+        @Parameters(index = "1", description = "description of task" )
+        private String description;
+
+        public void updateTask() throws IOException {
+            File file = new File(FILE_PATH);
+            if(!file.exists() || file.length() == 0)
+            {
+                System.out.println("File is either empty or missing. Please add a task to update....");
+                System.out.println("\n Example usage: taskcli update <id> <description>");
+                System.exit(1);
+            }
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                String jsonString = new String(Files.readAllBytes(Paths.get(FILE_PATH)));
+                Map<Integer, Task>  map = mapper.readValue(jsonString, new TypeReference<Map<String, Task>>(){});
+                Task task = map.get(id);
+                task.setDescription(description);
+                task.setUpdatedAt(new StdDateFormat().format(Date.from(Instant.now())));
+                map.put(Integer.parseInt(id), task);
+                JSONObject json = new JSONObject(map);
+                FileWriter writer = new FileWriter(file);
+                writer.write(json.toString());
+                writer.close();
+
+            }
+            catch (Exception e){
+                System.out.println("Exception Thrown: " + e.getMessage() +"\n\n");
+                System.out.println("File is either empty or missing. Please add a task to update....");
+                System.out.println("\nExample usage: taskcli update <id> <description>");
+                System.exit(1);
+            }
+
+
+        }
+        @Override
+        public Integer call() throws Exception {
+            updateTask();
+            return 0;
+        }
+}}
