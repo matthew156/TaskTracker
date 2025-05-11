@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import static org.matthew156.utils.Contants.FILE_PATH;
 @Command(name = "task-cli", mixinStandardHelpOptions = true, version = "task-cli 1.0",
-        description = "Accepts user actions and inputs as a argument to store in a JSON file", subcommands = {Add.class, Update.class, Delete.class})
+        description = "Accepts user actions and inputs as a argument to store in a JSON file", subcommands = {Add.class, Update.class, Delete.class, ListItems.class})
 class TaskTracker{
 
 
@@ -156,4 +156,44 @@ class Delete implements Callable<Integer>{
         deleteTask();
         return 0;
     }
+}
+
+@Command(name = "list", description = "shows the list of tasks created")
+class ListItems implements Callable<Integer>{
+
+    public void updateTask() throws IOException {
+        File file = new File(FILE_PATH);
+        if(!file.exists() || file.length() == 0)
+        {
+            System.out.println("File is either empty or missing. Please add a task to update....");
+            System.out.println("\n Example usage: taskcli list");
+            System.exit(1);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String jsonString = new String(Files.readAllBytes(Paths.get(FILE_PATH)));
+            Map<UUID, Task>  map = mapper.readValue(jsonString, new TypeReference<Map<UUID, Task>>(){});
+
+            List<Map.Entry<UUID, Task>> list = new ArrayList<>(map.entrySet());
+            for (Map.Entry<UUID, Task> entry : list){
+                System.out.println(entry.getKey() + ": " + mapper.writeValueAsString(entry.getValue()));
+            }
+
+        }
+        catch (Exception e){
+            System.out.println("Exception Thrown: " + e.getMessage() +"\n\n");
+            System.out.println("File is either empty or missing. Please add a task to update....");
+            System.out.println("\nExample usage: taskcli update <id> <description>");
+            System.exit(1);
+        }
+
+
+    }
+    @Override
+    public Integer call() throws Exception {
+        updateTask();
+        return 0;
+    }
+
+
 }

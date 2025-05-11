@@ -2,20 +2,19 @@ package org.matthew156.model;
 
 import org.matthew156.utils.Status;
 
-import java.util.Date;
 import java.util.UUID;
 
 public class Task {
     private UUID id;
     private String description;
-    private Status status;
+    private String status;
     private String createdAt;
     private String updatedAt;
 
 
     public Task( String description,  String createdAt, String updatedAt) {
         this.description = description;
-        this.status = Status.TODO;
+        this.status = Status.TODO.getName();
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -23,7 +22,7 @@ public class Task {
     public Task( UUID id, String description,  String createdAt, String updatedAt) {
         this.id = id;
         this.description = description;
-        this.status = Status.TODO;
+        this.status = Status.TODO.name();
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -61,5 +60,11 @@ public class Task {
         this.updatedAt = updatedAt;
     }
 
+    public String getStatus() {
+        return status;
+    }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
