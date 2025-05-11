@@ -3,9 +3,10 @@ package org.matthew156.model;
 import org.matthew156.utils.Status;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class Task {
-    private int id;
+    private UUID id;
     private String description;
     private Status status;
     private String createdAt;
@@ -19,7 +20,7 @@ public class Task {
         this.updatedAt = updatedAt;
     }
 
-    public Task( int id, String description,  String createdAt, String updatedAt) {
+    public Task( UUID id, String description,  String createdAt, String updatedAt) {
         this.id = id;
         this.description = description;
         this.status = Status.TODO;
@@ -28,11 +29,11 @@ public class Task {
     }
     public Task( ) {
     }
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
