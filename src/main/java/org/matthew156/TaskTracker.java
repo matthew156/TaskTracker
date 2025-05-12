@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import org.json.JSONObject;
 import org.matthew156.model.Task;
+import org.matthew156.utils.Status;
 import picocli.CommandLine;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Command;
@@ -19,7 +20,8 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import static org.matthew156.utils.Contants.FILE_PATH;
 @Command(name = "task-cli", mixinStandardHelpOptions = true, version = "task-cli 1.0",
-        description = "Accepts user actions and inputs as a argument to store in a JSON file", subcommands = {Add.class, Update.class, Delete.class, ListItems.class})
+        description = "Accepts user actions and inputs as a argument to store in a JSON file", subcommands = {Add.class, Update.class,
+        Delete.class, ListItems.class, MarkInProgress.class, MarkDone.class})
 class TaskTracker{
 
 
@@ -158,10 +160,104 @@ class Delete implements Callable<Integer>{
     }
 }
 
+
+@Command(name = "mark-in-progress", description = "shows the list of tasks created")
+class MarkInProgress implements Callable<Integer>{
+    @Parameters(index = "0", description = "id of the task being marked in progress")
+    UUID id;
+
+    public void markInProgress() throws IOException {
+        File file = new File(FILE_PATH);
+        if(!file.exists() || file.length() == 0)
+        {
+            System.out.println("File is either empty or missing. Please add a task to update....");
+            System.out.println("\n Example usage: taskcli list");
+            System.exit(1);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String jsonString = new String(Files.readAllBytes(Paths.get(FILE_PATH)));
+            Map<UUID, Task>  map = mapper.readValue(jsonString, new TypeReference<Map<UUID, Task>>(){});
+            Task task = map.get(id);
+            task.setStatus(Status.IN_PROGRESS.getName());
+            task.setUpdatedAt(new StdDateFormat().format(Date.from(Instant.now())));
+            map.put(id, task);
+            JSONObject json = new JSONObject(map);
+            FileWriter writer = new FileWriter(file);
+            writer.write(json.toString());
+            writer.close();
+            System.out.println("Marked ID: " + id+ " as in progress");
+
+        }
+        catch (Exception e){
+            System.out.println("Exception Thrown: " + e.getMessage() +"\n\n");
+            System.out.println("File is either empty or missing. Please add a task to update....");
+            System.out.println("\nExample usage: taskcli update <id> <description>");
+            System.exit(1);
+        }
+
+    }
+    @Override
+    public Integer call() throws Exception {
+        markInProgress();
+        return 0;
+    }
+
+
+}
+
+
+@Command(name = "mark-done", description = "shows the list of tasks created")
+class MarkDone implements Callable<Integer>{
+    @Parameters(index = "0", description = "id of the task being marked in progress")
+    UUID id;
+
+    public void markDone() throws IOException {
+        File file = new File(FILE_PATH);
+        if(!file.exists() || file.length() == 0)
+        {
+            System.out.println("File is either empty or missing. Please add a task to update....");
+            System.out.println("\n Example usage: taskcli list");
+            System.exit(1);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String jsonString = new String(Files.readAllBytes(Paths.get(FILE_PATH)));
+            Map<UUID, Task>  map = mapper.readValue(jsonString, new TypeReference<Map<UUID, Task>>(){});
+            Task task = map.get(id);
+            task.setStatus(Status.DONE.getName());
+            task.setUpdatedAt(new StdDateFormat().format(Date.from(Instant.now())));
+            map.put(id, task);
+            JSONObject json = new JSONObject(map);
+            FileWriter writer = new FileWriter(file);
+            writer.write(json.toString());
+            writer.close();
+            System.out.println("Marked ID: " + id+ " as done");
+
+        }
+        catch (Exception e){
+            System.out.println("Exception Thrown: " + e.getMessage() +"\n\n");
+            System.out.println("File is either empty or missing. Please add a task to update....");
+            System.out.println("\nExample usage: taskcli update <id> <description>");
+            System.exit(1);
+        }
+
+    }
+    @Override
+    public Integer call() throws Exception {
+        markDone();
+        return 0;
+    }
+
+
+}
+
+
+
 @Command(name = "list", description = "shows the list of tasks created")
 class ListItems implements Callable<Integer>{
 
-    public void updateTask() throws IOException {
+    public void listItems() throws IOException {
         File file = new File(FILE_PATH);
         if(!file.exists() || file.length() == 0)
         {
@@ -191,7 +287,7 @@ class ListItems implements Callable<Integer>{
     }
     @Override
     public Integer call() throws Exception {
-        updateTask();
+        listItems();
         return 0;
     }
 
