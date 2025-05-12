@@ -254,7 +254,7 @@ class MarkDone implements Callable<Integer>{
 
 
 
-@Command(name = "list", description = "shows the list of tasks created")
+@Command(name = "list", description = "shows the list of tasks created", subcommands = {ListItemsByDone.class, ListItemsByInProgress.class, ListItemsByTodo.class})
 class ListItems implements Callable<Integer>{
 
     public void listItems() throws IOException {
@@ -293,3 +293,85 @@ class ListItems implements Callable<Integer>{
 
 
 }
+
+@Command(name = "in-progress", description = "shows the list of tasks marked in-progress")
+class ListItemsByInProgress implements Callable<Integer>{
+    @Override
+    public Integer call() throws Exception {
+        ListItemsByStatus listItemsByStatus = new ListItemsByStatus(Status.IN_PROGRESS.getName());
+        listItemsByStatus.listItemsByStatus();
+        return 0;
+    }
+
+
+}
+
+@Command(name = "done", description = "shows the list of tasks marked done")
+class ListItemsByDone implements Callable<Integer>{
+
+    @Override
+    public Integer call() throws Exception {
+        ListItemsByStatus listItemsByStatus = new ListItemsByStatus(Status.DONE.getName());
+        listItemsByStatus.listItemsByStatus();
+        return 0;
+    }
+
+
+}
+
+@Command(name = "todo", description = "shows the list of tasks marked todo")
+class ListItemsByTodo implements Callable<Integer>{
+    @Override
+    public Integer call() throws Exception {
+        ListItemsByStatus listItemsByStatus = new ListItemsByStatus(Status.TODO.getName());
+        listItemsByStatus.listItemsByStatus();
+        return 0;
+    }
+
+
+}
+
+
+    class ListItemsByStatus{
+    private String status;
+
+        public ListItemsByStatus(String status) {
+            this.status = status;
+        }
+
+        public void listItemsByStatus()
+
+        {
+            File file = new File(FILE_PATH);
+            if (!file.exists() || file.length() == 0) {
+                System.out.println("File is either empty or missing. Please add a task to update....");
+                System.out.println("\n Example usage: taskcli list");
+                System.exit(1);
+            }
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                String jsonString = new String(Files.readAllBytes(Paths.get(FILE_PATH)));
+                Map<UUID, Task> map = mapper.readValue(jsonString, new TypeReference<Map<UUID, Task>>() {
+                });
+
+                List<Map.Entry<UUID, Task>> list = new ArrayList<>(map.entrySet());
+                List<Map.Entry<UUID, Task>> resultList = new ArrayList<>();
+                for (Map.Entry<UUID, Task> entry : list) {
+                    if (entry.getValue().getStatus().equals(status))
+                        resultList.add(entry);
+                }
+                if(resultList.isEmpty())
+                {
+                    System.out.println("There are no items for " + status + " status");
+                }
+                for (Map.Entry<UUID, Task> entry : resultList) {
+                    System.out.println(entry.getKey() + ": " + mapper.writeValueAsString(entry.getValue()));
+                }
+            } catch (Exception e) {
+                System.out.println("Exception Thrown: " + e.getMessage() + "\n\n");
+                System.out.println("File is either empty or missing. Please add a task to update....");
+                System.out.println("\nExample usage: taskcli update <id> <description>");
+                System.exit(1);
+            }
+        }
+    }
