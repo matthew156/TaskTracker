@@ -166,86 +166,66 @@ class MarkInProgress implements Callable<Integer>{
     @Parameters(index = "0", description = "id of the task being marked in progress")
     UUID id;
 
-    public void markInProgress() throws IOException {
-        File file = new File(FILE_PATH);
-        if(!file.exists() || file.length() == 0)
-        {
-            System.out.println("File is either empty or missing. Please add a task to update....");
-            System.out.println("\n Example usage: taskcli list");
-            System.exit(1);
-        }
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            String jsonString = new String(Files.readAllBytes(Paths.get(FILE_PATH)));
-            Map<UUID, Task>  map = mapper.readValue(jsonString, new TypeReference<Map<UUID, Task>>(){});
-            Task task = map.get(id);
-            task.setStatus(Status.IN_PROGRESS.getName());
-            task.setUpdatedAt(new StdDateFormat().format(Date.from(Instant.now())));
-            map.put(id, task);
-            JSONObject json = new JSONObject(map);
-            FileWriter writer = new FileWriter(file);
-            writer.write(json.toString());
-            writer.close();
-            System.out.println("Marked ID: " + id+ " as in progress");
-
-        }
-        catch (Exception e){
-            System.out.println("Exception Thrown: " + e.getMessage() +"\n\n");
-            System.out.println("File is either empty or missing. Please add a task to update....");
-            System.out.println("\nExample usage: taskcli update <id> <description>");
-            System.exit(1);
-        }
-
-    }
     @Override
     public Integer call() throws Exception {
-        markInProgress();
+        MarkStatus markStatus = new MarkStatus(Status.IN_PROGRESS.getName(), id);
+        markStatus.updateStatus();
         return 0;
     }
 
 
 }
 
+class MarkStatus {
+    private String status;
+    private UUID id;
 
-@Command(name = "mark-done", description = "shows the list of tasks created")
-class MarkDone implements Callable<Integer>{
-    @Parameters(index = "0", description = "id of the task being marked in progress")
-    UUID id;
+    public MarkStatus(String status, UUID id) {
+        this.status = status;
+        this.id = id;
+    }
 
-    public void markDone() throws IOException {
+
+    public void updateStatus() throws IOException {
         File file = new File(FILE_PATH);
-        if(!file.exists() || file.length() == 0)
-        {
-            System.out.println("File is either empty or missing. Please add a task to update....");
+        if (!file.exists() || file.length() == 0) {
+            System.out.println("File is either empty or missing task. Please add a task to update....");
             System.out.println("\n Example usage: taskcli list");
             System.exit(1);
         }
         ObjectMapper mapper = new ObjectMapper();
         try {
             String jsonString = new String(Files.readAllBytes(Paths.get(FILE_PATH)));
-            Map<UUID, Task>  map = mapper.readValue(jsonString, new TypeReference<Map<UUID, Task>>(){});
+            Map<UUID, Task> map = mapper.readValue(jsonString, new TypeReference<Map<UUID, Task>>() {
+            });
             Task task = map.get(id);
-            task.setStatus(Status.DONE.getName());
+            task.setStatus(status);
             task.setUpdatedAt(new StdDateFormat().format(Date.from(Instant.now())));
             map.put(id, task);
             JSONObject json = new JSONObject(map);
             FileWriter writer = new FileWriter(file);
             writer.write(json.toString());
             writer.close();
-            System.out.println("Marked ID: " + id+ " as done");
+            System.out.println("Marked ID: " + id + " as " + status);
 
-        }
-        catch (Exception e){
-            System.out.println("Exception Thrown: " + e.getMessage() +"\n\n");
+        } catch (Exception e) {
+            System.out.println("Exception Thrown: " + e.getMessage() + "\n\n");
             System.out.println("File is either empty or missing. Please add a task to update....");
             System.out.println("\nExample usage: taskcli update <id> <description>");
             System.exit(1);
         }
 
     }
+}
+
+@Command(name = "mark-done", description = "shows the list of tasks created")
+class MarkDone implements Callable<Integer>{
+    @Parameters(index = "0", description = "id of the task being marked in progress")
+    UUID id;
     @Override
     public Integer call() throws Exception {
-        markDone();
+        MarkStatus markStatus = new MarkStatus(Status.DONE.getName(), id);
+        markStatus.updateStatus();
         return 0;
     }
 

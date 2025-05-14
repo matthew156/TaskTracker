@@ -87,7 +87,7 @@ taskcli list
 ```
 
 List only tasks with a specific status:
-```bash
+```
 taskcli list todo        # List only todo tasks
 taskcli list in-progress # List only in-progress tasks
 taskcli list done        # List only completed tasks
