@@ -2,6 +2,7 @@
 
 A command-line task management application that allows you to create, update, delete, and track the status of your tasks.
 
+Project url: https://roadmap.sh/projects/task-tracker
 ## Features
 
 - Add new tasks
